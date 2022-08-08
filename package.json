@@ -1,0 +1,41 @@
+{
+  "name": "express-mesto-gha",
+  "version": "1.0.0",
+  "description": "mesto project backend (express node.js)",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint .",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/M4rkelus/express-mesto-gha.git"
+  },
+  "author": "Mark Pirogov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/M4rkelus/express-mesto-gha/issues"
+  },
+  "homepage": "https://github.com/M4rkelus/express-mesto-gha#readme",
+  "devDependencies": {
+    "eslint": "^8.21.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "nodemon": "^2.0.19",
+    "prettier": "^2.7.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "express": "^4.18.1",
+    "mongoose": "^6.5.1",
+    "path": "^0.12.7"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all"
+  }
+}
