@@ -34,7 +34,7 @@ const getUserById = (req, res, next) => {
       if (err.name === 'CastError') {
         next(
           new BadRequestError({
-            message: `Передан некорректный id пользователя ${err.message}`,
+            message: `Передан некорректный id пользователя, ${err.message}`,
           }),
         );
       } else if (err.name === 'InternalServerError') {
@@ -54,13 +54,9 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BadRequestError(
-            `Переданы некорректные данные в методы создания пользователя ${err.message}`,
-          ),
-        );
-      } else if (err.name === 'InternalServerError') {
-        next(new ApplicationError());
+        res.status(400).send({
+          message: `Переданы некорректные данные в методы создания пользователя, ${err.message}`,
+        });
       } else {
         next(err);
       }
@@ -83,13 +79,9 @@ const updProfile = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BadRequestError(
-            `Переданы некорректные данные в методы обновления профиля ${err.message}`,
-          ),
-        );
-      } else if (err.name === 'InternalServerError') {
-        next(new ApplicationError());
+        res.status(400).send({
+          message: `Переданы некорректные данные в методы обновления профиля, ${err.message}`,
+        });
       } else {
         next(err);
       }
@@ -108,13 +100,9 @@ const updAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BadRequestError({
-            message: `Переданы некорректные данные в методы обновления аватара пользователя ${err.message}`,
-          }),
-        );
-      } else if (err.name === 'InternalServerError') {
-        next(new ApplicationError());
+        res.status(400).send({
+          message: `Переданы некорректные данные в методы обновления аватара пользователя ${err.message}`,
+        });
       } else {
         next(err);
       }
