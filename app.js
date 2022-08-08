@@ -1,10 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
+const auth = (req, _, next) => {
+  req.user = {
+    _id: '62ef8ed46585f062d9cef432',
+  };
+
+  next();
+};
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
