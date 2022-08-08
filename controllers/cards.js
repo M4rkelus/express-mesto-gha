@@ -1,6 +1,5 @@
 const Card = require('../models/card');
 const ApplicationError = require('../errors/ApplicationError');
-const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 
 const getCards = (_, res, next) => {
@@ -24,11 +23,9 @@ const createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(400)
-          .send({
-            message: `Переданы некорректные данные в методы создания карточки ${err.message}`,
-          });
+        res.status(400).send({
+          message: `Переданы некорректные данные в методы создания карточки, ${err.message}`,
+        });
       } else {
         next(err);
       }
@@ -70,13 +67,9 @@ const likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BadRequestError(
-            `Переданы некорректные данные в методы постановки лайка карточки ${err.message}`,
-          ),
-        );
-      } else if (err.name === 'InternalServerError') {
-        next(new ApplicationError());
+        res.status(400).send({
+          message: `Переданы некорректные данные в методы постановки лайка карточки, ${err.message}`,
+        });
       } else {
         next(err);
       }
@@ -99,13 +92,9 @@ const dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BadRequestError(
-            `Переданы некорректные данные в методы удаления лайка с карточки ${err.message}`,
-          ),
-        );
-      } else if (err.name === 'InternalServerError') {
-        next(new ApplicationError());
+        res.status(400).send({
+          message: `Переданы некорректные данные в методы удаления лайка с карточки ${err.message}`,
+        });
       } else {
         next(err);
       }

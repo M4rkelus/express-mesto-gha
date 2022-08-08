@@ -1,6 +1,7 @@
+const mongoose = require('mongoose');
+
 const User = require('../models/user');
 const ApplicationError = require('../errors/ApplicationError');
-const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 
 const getUsers = (_, res, next) => {
@@ -19,9 +20,6 @@ const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .orFail(() => {
-      throw new NotFoundError(`Пользователь с id: ${userId} не найден`);
-    })
     .then((user) => {
       res.status(200).send({
         _id: user.id,
@@ -31,14 +29,14 @@ const getUserById = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(
-          new BadRequestError({
-            message: `Передан некорректный id пользователя, ${err.message}`,
-          }),
-        );
-      } else if (err.name === 'InternalServerError') {
-        next(new ApplicationError());
+      if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
+        res
+          .status(404)
+          .send({ message: `пользователь c id: ${userId} не найден` });
+      } else if (err.name === 'CastError') {
+        res.status(400).send({
+          message: `Передан некорректный id пользователя, ${err.message}`,
+        });
       } else {
         next(err);
       }
@@ -75,7 +73,7 @@ const updProfile = (req, res, next) => {
       throw new NotFoundError(`Пользователь с id: ${req.user._id} не найден`);
     })
     .then((user) => {
-      res.status(201).send({ name: user.name, about: user.about });
+      res.status(200).send({ name: user.name, about: user.about });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -96,7 +94,7 @@ const updAvatar = (req, res, next) => {
       throw new NotFoundError(`Пользователь с id: ${req.user._id} не найден`);
     })
     .then((user) => {
-      res.status(201).send(user);
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
