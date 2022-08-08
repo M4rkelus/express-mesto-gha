@@ -1,19 +1,9 @@
-const mongoose = require('mongoose');
-
 const User = require('../models/user');
-const ApplicationError = require('../errors/ApplicationError');
-const NotFoundError = require('../errors/NotFoundError');
 
 const getUsers = (_, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      if (err.name === 'InternalServerError') {
-        next(new ApplicationError());
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 const getUserById = (req, res, next) => {
@@ -29,7 +19,7 @@ const getUserById = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
+      if (err.name === 'TypeError') {
         res
           .status(404)
           .send({ message: `пользователь c id: ${userId} не найден` });
@@ -70,7 +60,9 @@ const updProfile = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .orFail(() => {
-      throw new NotFoundError(`Пользователь с id: ${req.user._id} не найден`);
+      res
+        .status(404)
+        .send({ message: `Пользователь с id: ${req.user._id} не найден` });
     })
     .then((user) => {
       res.status(200).send({ name: user.name, about: user.about });
@@ -91,7 +83,9 @@ const updAvatar = (req, res, next) => {
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .orFail(() => {
-      throw new NotFoundError(`Пользователь с id: ${req.user._id} не найден`);
+      res
+        .status(404)
+        .send({ message: `Пользователь с id: ${req.user._id} не найден` });
     })
     .then((user) => {
       res.status(200).send(user);
