@@ -1,15 +1,28 @@
 const User = require('../models/user');
+const NotFoundError = require('../errors/NotFoundError');
+const {
+  BAD_REQUEST_CODE,
+  NOT_FOUND_CODE,
+  SERVER_ERROR_CODE,
+} = require('../errors/const');
 
-const getUsers = (_, res, next) => {
+const getUsers = (_, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch(next);
+    .catch((err) => {
+      res
+        .status(SERVER_ERROR_CODE)
+        .send({ message: `Ошибка сервера, ${err.message}` });
+    });
 };
 
-const getUserById = (req, res, next) => {
+const getUserById = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
+    .orFail(() => {
+      throw new NotFoundError(`пользователь c id: ${userId} не найден`);
+    })
     .then((user) => {
       res.status(200).send({
         _id: user.id,
@@ -19,21 +32,21 @@ const getUserById = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'TypeError') {
-        res
-          .status(404)
-          .send({ message: `пользователь c id: ${userId} не найден` });
-      } else if (err.name === 'CastError') {
-        res.status(400).send({
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_CODE).send({
           message: `Передан некорректный id пользователя, ${err.message}`,
         });
+      } else if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_CODE).send({ message: `${err.message}` });
       } else {
-        next(err);
+        res
+          .status(SERVER_ERROR_CODE)
+          .send({ message: `Ошибка сервера, ${err.message}` });
       }
     });
 };
 
-const createUser = (req, res, next) => {
+const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
@@ -42,16 +55,18 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(BAD_REQUEST_CODE).send({
           message: `Переданы некорректные данные в методы создания пользователя, ${err.message}`,
         });
       } else {
-        next(err);
+        res
+          .status(SERVER_ERROR_CODE)
+          .send({ message: `Ошибка сервера, ${err.message}` });
       }
     });
 };
 
-const updProfile = (req, res, next) => {
+const updProfile = (req, res) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -60,43 +75,47 @@ const updProfile = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .orFail(() => {
-      res
-        .status(404)
-        .send({ message: `Пользователь с id: ${req.user._id} не найден` });
+      throw new NotFoundError(`пользователь c id: ${req.user._id} не найден`);
     })
     .then((user) => {
       res.status(200).send({ name: user.name, about: user.about });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(BAD_REQUEST_CODE).send({
           message: `Переданы некорректные данные в методы обновления профиля, ${err.message}`,
         });
+      } else if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_CODE).send({ message: `${err.message}` });
       } else {
-        next(err);
+        res
+          .status(SERVER_ERROR_CODE)
+          .send({ message: `Ошибка сервера, ${err.message}` });
       }
     });
 };
 
-const updAvatar = (req, res, next) => {
+const updAvatar = (req, res) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .orFail(() => {
-      res
-        .status(404)
-        .send({ message: `Пользователь с id: ${req.user._id} не найден` });
+      throw new NotFoundError(`Пользователь с id: ${req.user._id} не найден`);
     })
     .then((user) => {
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(BAD_REQUEST_CODE).send({
           message: `Переданы некорректные данные в методы обновления аватара пользователя ${err.message}`,
         });
+      } else if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_CODE).send({ message: `${err.message}` });
       } else {
-        next(err);
+        res
+          .status(SERVER_ERROR_CODE)
+          .send({ message: `Ошибка сервера, ${err.message}` });
       }
     });
 };
