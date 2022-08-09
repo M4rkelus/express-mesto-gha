@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { NOT_FOUND_CODE } = require('./errors/const');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -25,7 +26,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use((_, res) => {
-  res.status(404).send({ message: 'Указан неправильный путь' });
+  res.status(NOT_FOUND_CODE).send({ message: 'Указан неправильный путь' });
 });
 
 app.listen(PORT, () => {
