@@ -1,17 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { NOT_FOUND_CODE } = require('./errors/const');
+const { errors } = require('celebrate');
+
+const auth = require('./middlewares/auth');
+const error = require('./middlewares/error');
+const { createUser, login } = require('./controllers/users');
+const { authValidate, registerValidate } = require('./middlewares/validation');
+const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
-const auth = (req, _, next) => {
-  req.user = {
-    _id: '62ef8ed46585f062d9cef432',
-  };
-
-  next();
-};
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -20,14 +19,20 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.use(auth); // Temporary Authorization
+app.post('/signup', registerValidate, createUser);
+app.post('/signin', authValidate, login);
+
+app.use(auth);
 
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use((_, res) => {
-  res.status(NOT_FOUND_CODE).send({ message: 'Указан неправильный путь' });
+app.use(() => {
+  throw new NotFoundError('Указан неправильный путь');
 });
+
+app.use(errors());
+app.use(error); // centralized error handler
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
