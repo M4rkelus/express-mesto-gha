@@ -15,12 +15,12 @@ const auth = (req, _, next) => {
         : 'dev-secret'}`,
     );
   } catch (err) {
-    next(new UnauthorizedError('Неверный электронный адрес или пароль'));
+    throw new UnauthorizedError('Неверный электронный адрес или пароль');
   }
 
   req.user = payload;
 
-  return next();
+  next();
 };
 
 module.exports = auth;

@@ -22,8 +22,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.post('/signup', registerValidate, createUser);
 app.post('/signin', authValidate, login);
 
-// app.use('/users', require('./routes/users'));
-// app.use('/cards', require('./routes/cards'));
+app.use(auth);
+
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
@@ -31,7 +31,6 @@ app.use(() => {
   throw new NotFoundError('Указан неправильный путь');
 });
 
-app.use(auth);
 app.use(errors());
 app.use(error); // centralized error handler
 
