@@ -80,7 +80,6 @@ const createUser = (req, res, next) => {
     }))
     .then((user) => {
       res.status(201).send({
-        message: `Пользователь ${user.name} успешно создан!`,
         data: {
           name: user.name,
           about: user.about,

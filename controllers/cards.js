@@ -67,7 +67,7 @@ const likeCard = (req, res, next) => {
       res.status(201).send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
         next(new BadRequestError(
           `Передан некорректный id: ${cardId} в методы постановки лайка карточки`,
         ));
