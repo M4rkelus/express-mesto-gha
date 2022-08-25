@@ -1,7 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
 
 // eslint-disable-next-line
-const urlCheckPattern = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/;
+const urlCheckPattern = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([w+&@#%=~_|$?!:,\-\/]))?/;
 
 const authValidate = celebrate({
   body: Joi.object().keys({
@@ -16,8 +16,7 @@ const registerValidate = celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(urlCheckPattern),
     email: Joi.string().required().email(),
-    password: Joi.string().required(),
-
+    password: Joi.string().required().min(8),
   }),
 });
 
@@ -29,9 +28,9 @@ const userValidate = celebrate({
 });
 
 const userIdValidate = celebrate({
-  params: {
+  params: Joi.object().keys({
     userId: Joi.string().hex().length(24),
-  },
+  }),
 });
 
 const avatarValidate = celebrate({
@@ -48,9 +47,9 @@ const cardValidate = celebrate({
 });
 
 const cardIdValidate = celebrate({
-  params: {
+  params: Joi.object().keys({
     userId: Joi.string().hex().length(24),
-  },
+  }),
 });
 
 module.exports = {

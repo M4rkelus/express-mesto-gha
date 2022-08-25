@@ -6,6 +6,8 @@ const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
 
+const { NODE_ENV, JWT_SECRET = 'dev-secret' } = process.env;
+
 const getUsers = (_, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
@@ -156,10 +158,17 @@ const login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        'super-strong-secret',
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-key',
         { expiresIn: '7d' },
       );
-      res.send({ token });
+      res
+        .cookie('jwt', token, {
+          maxAge: (7 * 24 * 60 * 60),
+          httpOnly: true,
+          sameSite: true,
+        })
+        .send({ message: 'Вы успешно авторизовались!' })
+        .end();
     })
     .catch(next);
 };
