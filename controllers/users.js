@@ -48,12 +48,7 @@ const getCurrentUser = (req, res, next) => {
       throw new NotFoundError(`Пользователь c id: ${_id} не найден`);
     })
     .then((user) => {
-      res.send({
-        _id: user.id,
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-      });
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -84,7 +79,15 @@ const createUser = (req, res, next) => {
       password: hash,
     }))
     .then((user) => {
-      res.status(201).send({ message: `Пользователь ${user.name} успешно создан!` });
+      res.status(201).send({
+        message: `Пользователь ${user.name} успешно создан!`,
+        data: {
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+        },
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
