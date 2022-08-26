@@ -1,17 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 const { errors } = require('celebrate');
 
-const auth = require('./middlewares/auth');
+const routes = require('./routes');
 const error = require('./middlewares/error');
-const { createUser, login } = require('./controllers/users');
-const { authValidate, registerValidate } = require('./middlewares/validation');
-const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
+app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
 
@@ -19,18 +18,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.post('/signup', registerValidate, createUser);
-app.post('/signin', authValidate, login);
-
-app.use(auth);
-
-app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
-
-app.use(() => {
-  throw new NotFoundError('Указан неправильный путь');
-});
-
+app.use(routes); // all routes logic
 app.use(errors());
 app.use(error); // centralized error handler
 

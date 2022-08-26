@@ -133,7 +133,11 @@ const updProfile = (req, res, next) => {
 const updAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    { new: true, runValidators: true },
+  )
     .orFail(() => {
       throw new NotFoundError(`Пользователь с id: ${req.user._id} не найден`);
     })
@@ -175,6 +179,10 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
+const signout = (_, res) => {
+  res.clearCookie('jwt').send({ message: 'Выход' });
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -183,4 +191,5 @@ module.exports = {
   updProfile,
   updAvatar,
   login,
+  signout,
 };

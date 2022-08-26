@@ -1,7 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
 
-// eslint-disable-next-line
-const urlCheckPattern = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([w+&@#%=~_|$?!:,\-\/]))?/;
+const urlCheckPattern = /https?:\/\/(www\.)?[a-zA-Z\d-]+\.[\w\d\-.~:/?#[\]@!$&'()*+,;=]{2,}#?/;
 
 const authValidate = celebrate({
   body: Joi.object().keys({
@@ -16,7 +15,7 @@ const registerValidate = celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(urlCheckPattern),
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
   }),
 });
 
